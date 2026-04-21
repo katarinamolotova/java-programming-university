@@ -1,4 +1,6 @@
-package part1;
+package part2;
+
+import java.util.List;
 
 import part1.control_elements.Button;
 import part1.control_elements.CheckButton;
@@ -6,7 +8,8 @@ import part1.control_elements.ControlElement;
 import part1.control_elements.TextField;
 
 public class Main {
-     public static void main(String[] args) {
+    public static void main(String[] args) {
+        // Массив из 20 элементов управления (тот же, что в части 1)
         ControlElement[] elements = new ControlElement[20];
 
         elements[0] = new Button("btn1", 10, 20, "OK");
@@ -30,8 +33,36 @@ public class Main {
         elements[18] = new Button("btn7", 99, 111, "Export");
         elements[19] = new CheckButton("chk7", 12, 24, "Dark mode", true);
 
+        // Вывод массива
+        System.out.println("=== Все элементы управления ===");
         for (ControlElement el : elements) {
             System.out.println(el);
+        }
+
+        // Запрос 33
+        System.out.println("\n=== Текст выбранных CheckButton ===");
+        List<String> selectedTexts = ControlElementQueries.getSelectedCheckButtonTexts(elements);
+        for (String text : selectedTexts) {
+            System.out.println(text);
+        }
+
+        // Запрос 34
+        System.out.println("\n=== Непустой текст TextField с hint ===");
+        List<String> nonEmptyTexts = ControlElementQueries.getNonEmptyTextsWithHint(elements);
+        for (String text : nonEmptyTexts) {
+            System.out.println(text);
+        }
+
+        // Запрос 35 (например, для x = 10)
+        int testX = 10;
+        System.out.println("\n=== Элементы с координатой x = " + testX + " ===");
+        List<String> elementsAtX = ControlElementQueries.getElementsAtX(elements, testX);
+        if (elementsAtX.isEmpty()) {
+            System.out.println("Нет элементов с x = " + testX);
+        } else {
+            for (String info : elementsAtX) {
+                System.out.println(info);
+            }
         }
     }
 }

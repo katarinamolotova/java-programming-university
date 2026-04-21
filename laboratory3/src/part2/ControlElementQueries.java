@@ -1,7 +1,11 @@
-package part1.control_elements;
+package part2;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import part1.control_elements.CheckButton;
+import part1.control_elements.ControlElement;
+import part1.control_elements.TextField;
 
 public class ControlElementQueries {
 
