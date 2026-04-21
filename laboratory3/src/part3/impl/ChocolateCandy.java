@@ -3,19 +3,17 @@ package part3.impl;
 import part3.base.Taste;
 import java.util.Objects;
 
-/**
- * Шоколадная конфета.
- */
 public class ChocolateCandy extends Candy {
-    private int cocoaPercentage; // процент какао
+    /**
+     * Процент какао в конфете
+     */
+    private int cocoaPercentage;
 
-    // Нестатический инициализатор
     {
         cocoaPercentage = 50;
         System.out.println("[Инициализатор ChocolateCandy] Устанавливается процент какао...");
     }
 
-    // Конструкторы с вызовом super (пункт D)
     public ChocolateCandy() {
         super();
     }
@@ -41,23 +39,19 @@ public class ChocolateCandy extends Candy {
         this.cocoaPercentage = cocoaPercentage;
     }
 
-    // Переопределение метода eat
     @Override
     public void eat() {
         System.out.println("Вы наслаждаетесь шоколадной конфетой \"" + getName() +
                 "\" с " + cocoaPercentage + "% какао.");
     }
 
-    // Перегрузка метода eat (пункт E) с дополнительным параметром
     public void eat(String mood) {
         System.out.println("Вы в настроении \"" + mood + "\" съедаете шоколадную конфету \"" + getName() + "\".");
     }
 
-    // Переопределение getCalories (учёт какао)
     @Override
     public double getCalories() {
         double base = super.getCalories();
-        // дополнительно: чем больше какао, тем меньше сахара, но мы условно прибавим
         double cocoaEffect = cocoaPercentage * 0.5;
         return base + cocoaEffect;
     }

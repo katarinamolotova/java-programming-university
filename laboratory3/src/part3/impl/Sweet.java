@@ -5,16 +5,20 @@ import java.util.Objects;
 import part3.base.Edible;
 import part3.base.Taste;
 
-/**
- * Базовый класс для всех сладостей.
- */
 public class Sweet implements Edible {
-    // Поля с доступом через get/set (пункт B)
+    /**
+     * Название сладости
+     */
     private String name;
-    private double weight; // вес в граммах
-    private Taste taste;   // поле перечислимого типа (пункт C)
+    /**
+     * Вес сладости в граммах
+     */
+    private double weight;
+    /**
+     * Вкус сладости
+     */
+    private Taste taste;
 
-    // Нестатический инициализатор (пункт F)
     {
         name = "Неизвестная сладость";
         weight = 10.0;
@@ -22,10 +26,7 @@ public class Sweet implements Edible {
         System.out.println("[Инициализатор Sweet] Создаётся объект сладости...");
     }
 
-    // Перегрузка конструкторов (пункт D)
-    public Sweet() {
-        // уже инициализировано в инициализаторе
-    }
+    public Sweet() { }
 
     public Sweet(String name, double weight, Taste taste) {
         setName(name);
@@ -37,7 +38,6 @@ public class Sweet implements Edible {
         this(name, weight, Taste.SWEET);
     }
 
-    // Геттеры и сеттеры с проверками (пункт B)
     public String getName() {
         return name;
     }
@@ -68,7 +68,6 @@ public class Sweet implements Edible {
         this.taste = taste;
     }
 
-    // Реализация методов интерфейса Edible (пункт A)
     @Override
     public void eat() {
         System.out.println("Вы съели " + name + " (" + weight + " г). Вкус: " + taste);
@@ -76,16 +75,13 @@ public class Sweet implements Edible {
 
     @Override
     public double getCalories() {
-        // Базовая калорийность: 4 ккал на грамм (условно)
         return weight * 4.0;
     }
 
-    // Перегрузка метода eat (пункт E)
     public void eat(int pieces) {
         System.out.println("Вы съели " + pieces + " шт. сладости \"" + name + "\".");
     }
 
-    // Переопределение toString
     @Override
     public String toString() {
         return String.format("Sweet{name='%s', weight=%.1f г, вкус=%s, калории=%.1f}",

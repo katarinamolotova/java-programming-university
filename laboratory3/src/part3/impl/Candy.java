@@ -3,30 +3,28 @@ package part3.impl;
 import part3.base.Taste;
 import java.util.Objects;
 
-/**
- * Класс конфеты (наследует Sweet).
- */
 public class Candy extends Sweet {
-    private String filling; // начинка (например, "карамель", "помадка")
+    /**
+     * Начинка конфеты
+     */
+    private String filling;
 
-    // Нестатический инициализатор
     {
         filling = "без начинки";
         System.out.println("[Инициализатор Candy] Добавляются свойства конфеты...");
     }
 
-    // Перегрузка конструкторов с вызовом конструктора базового класса (пункт D)
     public Candy() {
-        super(); // вызывается конструктор Sweet()
+        super();
     }
 
     public Candy(String name, double weight, Taste taste, String filling) {
-        super(name, weight, taste); // вызов конструктора Sweet с параметрами
+        super(name, weight, taste);
         setFilling(filling);
     }
 
     public Candy(String name, double weight, String filling) {
-        super(name, weight); // вкус по умолчанию SWEET
+        super(name, weight);
         setFilling(filling);
     }
 
@@ -42,13 +40,11 @@ public class Candy extends Sweet {
         }
     }
 
-    // Переопределение метода eat (перегрузка уже есть в Sweet)
     @Override
     public void eat() {
         System.out.println("Вы разворачиваете конфету \"" + getName() + "\" с начинкой \"" + filling + "\" и съедаете её.");
     }
 
-    // Перегрузка метода eat (пункт E) - специфичная для Candy
     public void eat(boolean share) {
         if (share) {
             System.out.println("Вы делитесь конфетой \"" + getName() + "\" с другом.");
@@ -57,12 +53,10 @@ public class Candy extends Sweet {
         }
     }
 
-    // Переопределение getCalories (добавляем калории от начинки)
     @Override
     public double getCalories() {
         double base = super.getCalories();
-        // начинка добавляет примерно 1 ккал на грамм веса
-        double fillingCalories = getWeight() * 1.0;
+        double fillingCalories = getWeight();
         return base + fillingCalories;
     }
 
