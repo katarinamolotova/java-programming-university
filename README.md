@@ -1,2 +1,2 @@
-# java-programming-university
+# Java programming
 Выполнение лабораторных работы по Java в ВШЭ
