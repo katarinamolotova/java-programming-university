@@ -11,8 +11,6 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=== Демонстрация работы с иерархией сладостей ===\n");
-
         Sweet s1 = new Sweet("Мармелад", 50.0, Taste.SWEET);
         Candy c1 = new Candy("Барбарис", 15.0, Taste.SOUR, "фруктовая");
         Candy c2 = new Candy("Коровка", 20.0, "сливочная помадка");
