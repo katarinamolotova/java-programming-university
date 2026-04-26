@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Кто хочет стать миллионером</title>
+    <style>
+        :root {
+            --bg-dark: #07111f;
+            --bg-mid: #11203c;
+            --panel: rgba(10, 20, 40, 0.88);
+            --panel-soft: rgba(18, 33, 64, 0.86);
+            --panel-border: rgba(138, 164, 224, 0.38);
+            --panel-highlight: rgba(255, 255, 255, 0.08);
+            --text-main: #f7f3e3;
+            --text-soft: #cbd4f2;
+            --accent: #ffcc5c;
+            --accent-strong: #ff9f1c;
+            --action: #1c4ea1;
+            --action-dark: #14346e;
+            --success: #2d9b6d;
+            --shadow-strong: 0 28px 54px rgba(0, 0, 0, 0.34);
+            --shadow-soft: 0 16px 30px rgba(2, 8, 19, 0.26);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(255, 204, 92, 0.18), transparent 24%),
+                radial-gradient(circle at top right, rgba(63, 104, 201, 0.22), transparent 30%),
+                linear-gradient(180deg, var(--bg-mid), var(--bg-dark) 56%, #050b15 100%);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            color: var(--text-main);
+        }
+
+        .stage {
+            width: min(1160px, calc(100vw - 36px));
+            margin: 24px auto;
+            padding: 24px;
+            border: 1px solid var(--panel-border);
+            border-radius: 28px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 18%),
+                linear-gradient(180deg, rgba(8, 17, 35, 0.95), rgba(8, 17, 35, 0.9));
+            box-shadow: var(--shadow-strong);
+        }
+
+        .top-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 16px;
+            padding: 18px 20px;
+            border: 1px solid var(--panel-border);
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(24, 40, 74, 0.92), rgba(11, 22, 45, 0.92));
+            box-shadow: var(--shadow-soft);
+        }
+
+        .status {
+            font-size: 15px;
+            color: var(--text-soft);
+        }
+
+        .status-copy {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 24px;
+            align-items: center;
+        }
+
+        .status-copy b {
+            color: var(--text-main);
+        }
+
+        .top-meta form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            width: min(560px, 100%);
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .player-form-field {
+            display: flex;
+            flex: 1 1 180px;
+            min-width: 0;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .player-form-label {
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .player-form-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .top-meta input,
+        .top-meta select {
+            flex: 1;
+            width: 100%;
+            min-width: 0;
+            padding: 12px 14px;
+            border: 1px solid rgba(131, 191, 255, 0.32);
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(15, 28, 56, 0.96), rgba(9, 18, 38, 0.98));
+            color: var(--text-main);
+            font-size: 15px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .top-meta input::placeholder {
+            color: rgba(203, 212, 242, 0.72);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: 220px minmax(0, 1fr) 170px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .left-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .control-card,
+        .main-screen-frame,
+        .question-line,
+        .ladder,
+        .message,
+        .hint {
+            border: 1px solid var(--panel-border);
+            border-radius: 22px;
+            background: linear-gradient(180deg, var(--panel-soft), var(--panel));
+            box-shadow: var(--shadow-soft);
+        }
+
+        .control-card {
+            padding: 18px;
+        }
+
+        .records-card {
+            padding-bottom: 10px;
+        }
+
+        .section-title {
+            margin-bottom: 14px;
+            font-size: 12px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .lifeline-group,
+        .action-group {
+            display: grid;
+            gap: 10px;
+        }
+
+        .left-controls form,
+        .action-group form,
+        .answer-grid form {
+            margin: 0;
+        }
+
+        .left-controls button,
+        .answer-grid button,
+        .top-meta button {
+            width: 100%;
+            border: 1px solid rgba(255, 209, 107, 0.35);
+            border-radius: 14px;
+            background:
+                linear-gradient(180deg, rgba(255, 214, 117, 0.26), rgba(255, 159, 28, 0.18)),
+                linear-gradient(180deg, rgba(29, 58, 116, 0.95), rgba(17, 35, 72, 0.98));
+            color: var(--text-main);
+            padding: 12px 14px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 18px rgba(4, 9, 20, 0.28);
+        }
+
+        .left-controls button:disabled,
+        .answer-grid button:disabled {
+            color: rgba(247, 243, 227, 0.5);
+            border-color: rgba(203, 212, 242, 0.16);
+            background: linear-gradient(180deg, rgba(78, 89, 120, 0.56), rgba(41, 48, 69, 0.74));
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .action-group button,
+        .top-meta button {
+            border-color: rgba(131, 191, 255, 0.32);
+            background:
+                linear-gradient(180deg, rgba(87, 161, 255, 0.24), rgba(28, 78, 161, 0.2)),
+                linear-gradient(180deg, var(--action), var(--action-dark));
+        }
+
+        .player-form-row button {
+            width: auto;
+            min-width: 140px;
+        }
+
+        .main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .main-screen-frame {
+            padding: 14px;
+        }
+
+        .main-screen {
+            display: block;
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+        }
+
+        .question-line {
+            margin: 0;
+            padding: 20px 28px;
+            font-size: 36px;
+            line-height: 1.18;
+            text-align: center;
+            min-height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ladder {
+            min-height: 100%;
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ladder-row {
+            padding: 6px 10px;
+            border-radius: 12px;
+            text-align: right;
+            font-size: 19px;
+            line-height: 1.12;
+            color: var(--text-soft);
+            border: 1px solid transparent;
+        }
+
+        .ladder-row.current {
+            color: #111827;
+            font-weight: 700;
+            background: linear-gradient(180deg, #ffe39b, var(--accent));
+            border-color: rgba(255, 232, 170, 0.84);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .answer-grid button {
+            min-height: 76px;
+            padding: 16px 18px;
+            font-size: 25px;
+            text-align: center;
+        }
+
+        .message,
+        .hint {
+            margin: 0 0 12px;
+            padding: 12px 16px;
+            font-size: 15px;
+        }
+
+        .message {
+            color: #ffdf8e;
+        }
+
+        .hint {
+            color: #d7e6ff;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            color: var(--text-soft);
+        }
+
+        .records-table th,
+        .records-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(138, 164, 224, 0.18);
+            vertical-align: top;
+        }
+
+        .records-table th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--accent);
+            text-align: left;
+        }
+
+        .records-table th:last-child,
+        .records-table td:last-child {
+            text-align: right;
+        }
+
+        .records-table td:nth-child(1) {
+            width: 28px;
+            color: var(--accent);
+        }
+
+        .records-table td:nth-child(3) {
+            width: 52px;
+            text-align: center;
+        }
+
+        .record-name {
+            display: block;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .records-empty {
+            margin: 0;
+            color: var(--text-soft);
+            font-size: 14px;
+            line-height: 1.45;
+        }
+    </style>
+</head>
+<body>
+<div class="stage">
+    <div class="top-meta status">
+        <div class="status-copy">
+            <span>Игрок: <b th:text="${game != null ? game.playerName : playerNameValue}">Игрок</b></span>
+            <span>Вопрос: <b th:text="${questionNumber}">0</b>/15</span>
+            <span>Использовано подсказок: <b th:text="${game != null ? game.usedLifelinesCount : 0}">0</b>/4</span>
+            <span>Текущая сумма: <b th:text="${currentAmount}">0</b></span>
+            <span>Несгораемая сумма: <b th:text="${selectedGuaranteedAmount}">500</b></span>
+        </div>
+        <form method="post" action="/game/new">
+            <div class="player-form-row">
+                <div class="player-form-field">
+                    <span class="player-form-label">Имя игрока</span>
+                    <input type="text"
+                           name="playerName"
+                           maxlength="50"
+                           placeholder="Введите имя"
+                           th:value="${playerNameValue}"
+                           aria-label="Имя игрока">
+                </div>
+                <div class="player-form-field">
+                    <span class="player-form-label">Несгораемая сумма</span>
+                    <select name="guaranteedAmount" aria-label="Несгораемая сумма">
+                        <option th:each="amount : ${availableGuaranteedAmounts}"
+                                th:value="${amount}"
+                                th:selected="${amount == selectedGuaranteedAmount}"
+                                th:text="${amount}">
+                            500
+                        </option>
+                    </select>
+                </div>
+                <button type="submit">Новая игра</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="hint" th:if="${game == null}">Сначала выберите имя, несгораемую сумму и начните новую игру.</div>
+    <div class="message" th:if="${game != null and game.message != null}" th:text="${game.message}">Сообщение</div>
+    <div class="hint" th:if="${game != null and game.hint != null}" th:text="${game.hint}">Подсказка</div>
+
+        <div class="board">
+        <div class="left-controls">
+            <div class="control-card" th:if="${game != null and !game.finished}">
+                <div class="section-title">Подсказки</div>
+                <div class="lifeline-group">
+                    <form method="post" th:action="@{'/game/lifeline/FIFTY_FIFTY'}">
+                        <button type="submit" th:disabled="${game.usedLifelines.contains(T(ru.hse.whowantstobeamillionaire.model.LifelineType).FIFTY_FIFTY) or game.usedLifelinesCount >= 4}">50/50</button>
+                    </form>
+                    <form method="post" th:action="@{'/game/lifeline/AUDIENCE_HELP'}">
+                        <button type="submit" th:disabled="${game.usedLifelines.contains(T(ru.hse.whowantstobeamillionaire.model.LifelineType).AUDIENCE_HELP) or game.usedLifelinesCount >= 4}">Помощь зала</button>
+                    </form>
+                    <form method="post" th:action="@{'/game/lifeline/PHONE_FRIEND'}">
+                        <button type="submit" th:disabled="${game.usedLifelines.contains(T(ru.hse.whowantstobeamillionaire.model.LifelineType).PHONE_FRIEND) or game.usedLifelinesCount >= 4}">Звонок другу</button>
+                    </form>
+                    <form method="post" th:action="@{'/game/lifeline/RIGHT_TO_ERROR'}">
+                        <button type="submit" th:disabled="${game.usedLifelines.contains(T(ru.hse.whowantstobeamillionaire.model.LifelineType).RIGHT_TO_ERROR) or game.usedLifelinesCount >= 4}">Право на ошибку</button>
+                    </form>
+                    <form method="post" th:action="@{'/game/lifeline/REPLACE_QUESTION'}">
+                        <button type="submit" th:disabled="${game.usedLifelines.contains(T(ru.hse.whowantstobeamillionaire.model.LifelineType).REPLACE_QUESTION) or game.usedLifelinesCount >= 4}">Смена вопроса</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="control-card" th:if="${game != null and !game.finished}">
+                <div class="section-title">Решение</div>
+                <div class="action-group">
+                    <form method="post" action="/game/take-money">
+                        <button type="submit">Забрать деньги</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="control-card records-card">
+                <div class="section-title">Таблица рекордов</div>
+                <p class="records-empty" th:if="${#lists.isEmpty(topRecords)}">Пока нет сохранённых результатов.</p>
+                <table class="records-table" th:if="${!#lists.isEmpty(topRecords)}">
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>&nbspИгрок</th>
+                        <th>Уровень</th>
+                        <th>&nbspСумма</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="record, recordStat : ${topRecords}">
+                        <td th:text="${recordStat.count}">1</td>
+                        <td>
+                            <span class="record-name" th:text="${record.playerName()}">Игрок</span>
+                        </td>
+                        <td th:text="${record.achievedLevel()}">1</td>
+                        <td th:text="${record.amount()}">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="main-column">
+            <div class="main-screen-frame">
+                <img class="main-screen" th:src="@{/images/logo.jpg}" alt="Кто хочет стать миллионером">
+            </div>
+            <div class="question-line" th:text="${game == null ? 'Выберите параметры игры и начните новую партию' : (question != null ? question.text : 'Игра завершена')}">Текст вопроса</div>
+        </div>
+
+        <div class="ladder">
+            <div class="ladder-row"
+                 th:each="row : ${prizeRows}"
+                 th:classappend="${row.current()} ? ' current' : ''"
+                 th:text="${row.amount()}">
+                3 000 000
+            </div>
+        </div>
+    </div>
+
+    <div class="answer-grid" th:if="${game != null and !game.finished and question != null}">
+        <form method="post" action="/game/answer" th:each="idx : ${optionIndexes}">
+            <input type="hidden" name="answer" th:value="${idx}">
+            <button type="submit"
+                    th:disabled="${game.eliminatedOptions.contains(idx)}"
+                    th:text="${question.options[idx]}">
+                Вариант ответа
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
