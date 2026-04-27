@@ -2,6 +2,7 @@ package ru.hse.whowantstobeamillionaire.service;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -14,6 +15,7 @@ import ru.hse.whowantstobeamillionaire.model.LifelineType;
 import ru.hse.whowantstobeamillionaire.model.PlayerRecord;
 import ru.hse.whowantstobeamillionaire.model.PrizeRow;
 import ru.hse.whowantstobeamillionaire.model.Question;
+import ru.hse.whowantstobeamillionaire.model.QuestionSource;
 
 @Service
 @RequiredArgsConstructor
@@ -29,13 +31,16 @@ public class GameService {
     private final Random random = new SecureRandom();
     private final QuestionService questionService;
     private final PlayerRecordService playerRecordService;
+    private final AiQuestionGenerationService aiQuestionGenerationService;
 
-    public GameSession startNewGame(String playerName, Integer guaranteedAmount) {
-        List<Question> selected = selectQuestions();
+    public GameSession startNewGame(String playerName, Integer guaranteedAmount, QuestionSource questionSource) {
+        QuestionSource normalizedQuestionSource = QuestionSource.getOrDefault(questionSource);
+        List<Question> selected = initializeQuestions(normalizedQuestionSource);
         return new GameSession(
                 selected,
                 playerRecordService.normalizePlayerName(playerName),
-                normalizeGuaranteedAmount(guaranteedAmount)
+                normalizeGuaranteedAmount(guaranteedAmount),
+                normalizedQuestionSource
         );
     }
 
@@ -81,8 +86,8 @@ public class GameService {
 
         if (session.isRightToErrorActive()) {
             session.setRightToErrorActive(false);
+            session.setHint(null);
             session.setMessage("Ответ неверный, но подсказка «Право на ошибку» сохранила игру.");
-            advance(session);
             return;
         }
 
@@ -159,7 +164,10 @@ public class GameService {
         session.moveToNextQuestion();
         if (session.getCurrentQuestionIndex() >= QUESTIONS_TO_WIN) {
             finishGame(session, true, false, PRIZE_LADDER.get(PRIZE_LADDER.size() - 1), "Поздравляем! Вы выиграли игру.");
+            return;
         }
+
+        loadQuestionForCurrentLevel(session);
     }
 
     private void finishGame(GameSession session, boolean won, boolean tookMoney, int amount, String message) {
@@ -280,6 +288,13 @@ public class GameService {
     }
 
     private boolean replaceQuestion(GameSession session, Question current) {
+        if (session.getQuestionSource() == QuestionSource.AI) {
+            session.getQuestions().set(session.getCurrentQuestionIndex(), loadQuestionForLevel(session.getQuestionSource(), current.level()));
+            session.getEliminatedOptions().clear();
+            session.setHint("Текущий вопрос заменён.");
+            return true;
+        }
+
         return questionService.getQuestionForLevelExcluding(current.level(), List.of(current.text()))
                 .map(replacement -> {
                     session.getQuestions().set(session.getCurrentQuestionIndex(), replacement);
@@ -293,7 +308,34 @@ public class GameService {
                 });
     }
 
-    private List<Question> selectQuestions() {
-        return questionService.getQuestionsForGame(QUESTIONS_TO_WIN);
+    private List<Question> initializeQuestions(QuestionSource questionSource) {
+        List<Question> questions = new ArrayList<>(Collections.nCopies(QUESTIONS_TO_WIN, null));
+        questions.set(0, loadQuestionForLevel(questionSource, 1));
+        return questions;
+    }
+
+    private void loadQuestionForCurrentLevel(GameSession session) {
+        int questionIndex = session.getCurrentQuestionIndex();
+        if (questionIndex < 0 || questionIndex >= QUESTIONS_TO_WIN) {
+            return;
+        }
+
+        if (session.getQuestions().get(questionIndex) != null) {
+            return;
+        }
+
+        session.getQuestions().set(
+                questionIndex,
+                loadQuestionForLevel(session.getQuestionSource(), questionIndex + 1)
+        );
+    }
+
+    private Question loadQuestionForLevel(QuestionSource questionSource, int level) {
+        if (questionSource == QuestionSource.AI) {
+            return aiQuestionGenerationService.generateQuestion(level);
+        }
+
+        return questionService.getQuestionForLevel(level)
+                .orElseThrow(() -> new IllegalStateException("Отсутствуют вопросы для уровня " + level));
     }
 }
