@@ -15,6 +15,7 @@ public class GameSession {
     private final List<Question> questions;
     private final String playerName;
     private final int guaranteedAmount;
+    private final QuestionSource questionSource;
     private final EnumSet<LifelineType> usedLifelines = EnumSet.noneOf(LifelineType.class);
     private final Set<Integer> eliminatedOptions = new HashSet<>();
 
@@ -28,10 +29,11 @@ public class GameSession {
     private String hint;
     private boolean recordSaved;
 
-    public GameSession(List<Question> questions, String playerName, int guaranteedAmount) {
+    public GameSession(List<Question> questions, String playerName, int guaranteedAmount, QuestionSource questionSource) {
         this.questions = new ArrayList<>(questions);
         this.playerName = playerName;
         this.guaranteedAmount = guaranteedAmount;
+        this.questionSource = questionSource;
         this.currentQuestionIndex = 0;
     }
 

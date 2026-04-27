@@ -15,6 +15,7 @@ import ru.hse.whowantstobeamillionaire.model.LifelineType;
 import ru.hse.whowantstobeamillionaire.model.PlayerRecord;
 import ru.hse.whowantstobeamillionaire.model.PrizeRow;
 import ru.hse.whowantstobeamillionaire.model.Question;
+import ru.hse.whowantstobeamillionaire.model.QuestionSource;
 import ru.hse.whowantstobeamillionaire.service.GameService;
 
 @Controller
@@ -25,6 +26,7 @@ public class GameController {
     private static final int QUESTIONS_TO_WIN = 15;
 
     private final GameService gameService;
+
 
     @GetMapping("/")
     public String root() {
@@ -42,9 +44,13 @@ public class GameController {
     public String newGame(
             @RequestParam(name = "playerName", required = false) String playerName,
             @RequestParam(name = "guaranteedAmount", required = false) Integer guaranteedAmount,
+            @RequestParam(name = "questionSource", required = false) String questionSource,
             HttpSession httpSession
     ) {
-        httpSession.setAttribute(GAME_SESSION_KEY, gameService.startNewGame(playerName, guaranteedAmount));
+        httpSession.setAttribute(
+                GAME_SESSION_KEY,
+                gameService.startNewGame(playerName, guaranteedAmount, QuestionSource.parseQuestionSource(questionSource))
+        );
         return "redirect:/game";
     }
 
@@ -97,6 +103,9 @@ public class GameController {
         int selectedGuaranteedAmount = gameSession != null
                 ? gameSession.getGuaranteedAmount()
                 : gameService.getDefaultGuaranteedAmount();
+        QuestionSource selectedQuestionSource = gameSession != null
+                ? gameSession.getQuestionSource()
+                : QuestionSource.DATABASE;
         int questionNumber = gameSession == null
                 ? 0
                 : Math.min(gameSession.isFinished() ? gameSession.getCurrentQuestionIndex() : gameSession.getCurrentQuestionIndex() + 1, QUESTIONS_TO_WIN);
@@ -110,6 +119,8 @@ public class GameController {
         model.addAttribute("playerNameValue", playerNameValue);
         model.addAttribute("selectedGuaranteedAmount", selectedGuaranteedAmount);
         model.addAttribute("availableGuaranteedAmounts", gameService.getAvailableGuaranteedAmounts());
+        model.addAttribute("availableQuestionSources", QuestionSource.values());
+        model.addAttribute("selectedQuestionSource", selectedQuestionSource);
         model.addAttribute("questionNumber", questionNumber);
         model.addAttribute("currentAmount", gameService.getCurrentAmount(gameSession));
     }
